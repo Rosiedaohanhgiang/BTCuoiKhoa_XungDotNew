@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Corp: HRM's Turnaround Project</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        h1, h2, h3, .brand-font { font-family: 'Oswald', sans-serif; }
+        
+        .phase-step { transition: all 0.3s ease; }
+        .phase-step.active { border-color: #f59e0b; color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
+        .phase-step.completed { border-color: #10b981; color: #34d399; }
+        
+        .evidence-card { transition: transform 0.2s; cursor: pointer; }
+        .evidence-card:hover { transform: translateY(-2px); background-color: #334155; }
+        
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hidden-content { display: none !important; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+
+        .nav-tab { transition: all 0.2s; }
+        .nav-tab.active { background-color: #334155; color: white; border-left: 4px solid #f59e0b; }
+        .nav-tab:hover:not(.active) { background-color: #1e293b; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-700 p-4 flex justify-between items-center shadow-lg z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-600 rounded flex items-center justify-center text-white font-bold text-xl animate-pulse">
+                <i class="fa-solid fa-user-astronaut"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-white tracking-wide uppercase">Dự Án: HRM Giải Cứu Văn Hóa</h1>
+                <p class="text-xs text-rose-400 font-bold tracking-widest">EXPERT EDITION</p>
+            </div>
+        </div>
+        
+        <!-- Metrics -->
+        <div class="flex gap-6">
+            <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-600">
+                <p class="text-xs text-slate-400 uppercase">Chỉ số Niềm tin</p>
+                <div class="w-32 h-2 bg-slate-700 rounded-full mt-1 overflow-hidden">
+                    <div id="bar-trust" class="h-full bg-red-500 transition-all duration-1000" style="width: 30%"></div>
+                </div>
+                <p id="val-trust" class="text-right text-xs font-bold text-red-400 mt-1">30%</p>
+            </div>
+            <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-600">
+                <p class="text-xs text-slate-400 uppercase">Tỷ lệ giữ chân</p>
+                <div class="w-32 h-2 bg-slate-700 rounded-full mt-1 overflow-hidden">
+                    <div id="bar-retention" class="h-full bg-amber-500 transition-all duration-1000" style="width: 60%"></div>
+                </div>
+                <p id="val-retention" class="text-right text-xs font-bold text-amber-400 mt-1">60%</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Sidebar: Navigation & Roadmap -->
+        <aside class="w-72 bg-slate-800 border-r border-slate-700 flex flex-col overflow-hidden">
+            <!-- Main Nav -->
+            <div class="p-4 border-b border-slate-700">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Chế Độ</h3>
+                <button onclick="switchTab('simulation')" id="tab-btn-simulation" class="nav-tab active w-full text-left px-4 py-3 rounded-lg mb-2 flex items-center gap-3 text-slate-300">
+                    <i class="fa-solid fa-gamepad text-lg"></i>
+                    <span class="font-bold">Phòng Điều Hành</span>
+                </button>
+                <button onclick="switchTab('theory')" id="tab-btn-theory" class="nav-tab w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-slate-300">
+                    <i class="fa-solid fa-book-open text-lg"></i>
+                    <span class="font-bold">Hồ Sơ Kiến Thức</span>
+                </button>
+            </div>
+
+            <!-- Roadmap (Only visible in Simulation) -->
+            <div id="roadmap-container" class="p-6 flex-1 overflow-y-auto">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Lộ Trình Của HRM</h3>
+                
+                <div id="phase-1" class="phase-step active border-l-4 border-slate-600 pl-4 py-2 mb-4">
+                    <h4 class="font-bold text-sm text-white">GĐ 1: Chẩn Đoán Sâu</h4>
+                    <p class="text-xs text-slate-500">Tìm kiếm nguyên nhân gốc rễ.</p>
+                </div>
+                
+                <div id="phase-2" class="phase-step border-l-4 border-slate-600 pl-4 py-2 mb-4">
+                    <h4 class="font-bold text-sm text-white">GĐ 2: Luật Chơi Mới</h4>
+                    <p class="text-xs text-slate-500">Quy tắc giao tiếp & RTO.</p>
+                </div>
+
+                <div id="phase-3" class="phase-step border-l-4 border-slate-600 pl-4 py-2 mb-4">
+                    <h4 class="font-bold text-sm text-white">GĐ 3: Hàn Gắn Thế Hệ</h4>
+                    <p class="text-xs text-slate-500">Công nghệ & Thứ bậc.</p>
+                </div>
+
+                <div id="phase-4" class="phase-step border-l-4 border-slate-600 pl-4 py-2">
+                    <h4 class="font-bold text-sm text-white">GĐ 4: Tăng Tốc</h4>
+                    <p class="text-xs text-slate-500">Phản hồi & Phát triển.</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="flex-1 bg-slate-900 p-8 relative overflow-y-auto" id="workspace">
+            
+            <!-- VIEW 1: SIMULATION GAME -->
+            <div id="view-simulation" class="h-full">
+                <!-- Welcome -->
+                <div id="welcome-msg" class="mb-8 bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-xl border border-slate-700 flex items-start gap-4">
+                    <div class="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center text-amber-400 shrink-0">
+                        <i class="fa-solid fa-comment-sms text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Chào HRM!</h2>
+                        <p class="text-slate-300 text-sm mt-1">Công ty đang đối mặt với "Cơn bão hoàn hảo" của xung đột Hybrid và Đa thế hệ. Hãy dùng kiến thức của bạn để đưa ra 8 quyết định chiến lược.</p>
+                    </div>
+                </div>
+
+                <!-- Content injected via JS -->
+                <div id="game-content" class="max-w-4xl mx-auto animate-fade-in"></div>
+            </div>
+
+            <!-- VIEW 2: THEORY LIBRARY -->
+            <div id="view-theory" class="hidden-content max-w-5xl mx-auto animate-fade-in pb-20">
+                <h2 class="text-4xl brand-font text-white mb-2">Hồ Sơ Kiến Thức Của HRM</h2>
+                <p class="text-slate-400 mb-8">Tổng hợp "vũ khí" lý thuyết để giải quyết mọi xung đột.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Module 1 -->
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="bg-rose-900 text-rose-300 text-xs font-bold px-2 py-1 rounded">MODULE 1: CHẨN ĐOÁN</span>
+                        </div>
+
+                        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-rose-500 transition">
+                            <h4 class="text-lg font-bold text-rose-400 mb-2"><i class="fa-solid fa-brain mr-2"></i>Thiên Kiến Gần Gũi</h4>
+                            <p class="text-slate-300 text-sm leading-relaxed">Xu hướng ưu ái người "hiện diện". Gây ra bất bình đẳng cho nhóm làm từ xa (Slide 8).</p>
+                        </div>
+
+                        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-rose-500 transition">
+                            <h4 class="text-lg font-bold text-rose-400 mb-2"><i class="fa-solid fa-bolt mr-2"></i>Hiệu Ứng Khuếch Đại</h4>
+                            <p class="text-slate-300 text-sm leading-relaxed">Xung đột thế hệ + Khoảng cách địa lý = Thảm họa giao tiếp (Slide 24).</p>
+                        </div>
+
+                        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-rose-500 transition">
+                            <h4 class="text-lg font-bold text-rose-400 mb-2"><i class="fa-solid fa-sitemap mr-2"></i>Xung Đột Thứ Bậc</h4>
+                            <p class="text-slate-300 text-sm leading-relaxed">Boomer thích cấu trúc/thứ bậc. Gen Z thích phẳng/cửa mở. Dễ gây ra cảm giác "thiếu tôn trọng" (Slide 19).</p>
+                        </div>
+                    </div>
+
+                    <!-- Module 2 -->
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="bg-teal-900 text-teal-300 text-xs font-bold px-2 py-1 rounded">MODULE 2: GIẢI PHÁP</span>
+                        </div>
+
+                        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-teal-500 transition">
+                            <h4 class="text-lg font-bold text-teal-400 mb-2"><i class="fa-solid fa-file-contract mr-2"></i>Hợp Đồng Xã Hội</h4>
+                            <p class="text-slate-300 text-sm leading-relaxed">Quy định rõ ràng về RTO (có mục đích) và văn hóa "Ngắt kết nối" để tránh kiệt sức (Slide 14, 22).</p>
+                        </div>
+
+                        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-teal-500 transition">
+                            <h4 class="text-lg font-bold text-teal-400 mb-2"><i class="fa-solid fa-laptop-code mr-2"></i>Reverse Mentoring</h4>
+                            <p class="text-slate-300 text-sm leading-relaxed">Gen Z dạy Sếp công nghệ. Sếp dạy Gen Z chiến lược. Giải quyết "Khoảng cách kỹ thuật số" (Slide 20).</p>
+                        </div>
+
+                        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-teal-500 transition">
+                            <h4 class="text-lg font-bold text-teal-400 mb-2"><i class="fa-solid fa-comments mr-2"></i>Viết Là Cách Nói Mới</h4>
+                            <p class="text-slate-300 text-sm leading-relaxed">Chuyển sang văn hóa tài liệu hóa và giao tiếp bất đồng bộ (Async) để xóa nhòa khoảng cách (Slide 11).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Right Panel: Advisor (Only visible in Simulation) -->
+        <aside id="right-panel" class="w-80 bg-slate-800 border-l border-slate-700 p-6 flex flex-col">
+            <div class="mb-6">
+                <h3 class="brand-font text-xl text-white mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-user-tie text-teal-400"></i> Cố Vấn Ảo
+                </h3>
+                <p class="text-sm text-slate-400">Hỗ trợ HRM ra quyết định.</p>
+            </div>
+
+            <div id="hint-box" class="bg-slate-900 rounded-xl p-4 border border-slate-600 shadow-inner flex-1 overflow-y-auto">
+                <div class="flex items-start gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-lightbulb text-yellow-300"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-white">Gợi ý:</p>
+                        <p id="advisor-text" class="text-sm text-slate-300 mt-1 italic">
+                            "Hãy bắt đầu bằng việc lắng nghe dữ liệu. Đừng để cảm tính chi phối."
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-700">
+                    <button onclick="switchTab('theory')" class="w-full text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded border border-slate-600 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Mở Hồ Sơ Kiến Thức
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Modal for Evidence/Details -->
+    <div id="modal" class="hidden-content fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-slate-800 max-w-2xl w-full rounded-2xl border border-slate-600 shadow-2xl p-8 relative animate-fade-in">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- GAME STATE ---
+        let state = {
+            phase: 1,
+            trust: 30,
+            retention: 60,
+            evidenceCollected: [],
+            decisions: []
+        };
+
+        // --- CONTENT DATA (8 SCENARIOS) ---
+        const phases = {
+            1: {
+                title: "GĐ 1: Chẩn Đoán 'Tảng Băng Chìm'",
+                desc: "Công ty hỗn loạn. Sếp phàn nàn nhân viên lười. Gen Z đòi nghỉ việc. HRM cần xem xét bằng chứng để tìm nguyên nhân gốc rễ.",
+                evidences: [
+                    {
+                        id: "e1",
+                        icon: "fa-envelope",
+                        title: "Email từ CEO (Boomer)",
+                        preview: "V/v: Yêu cầu nhân viên quay lại văn phòng NGAY...",
+                        content: "<h3 class='text-xl font-bold text-white mb-2'>Email CEO:</h3><p class='text-slate-300 mb-4'>'Tôi không thấy nhân viên tại văn phòng thì sao biết họ có làm việc hay không? Yêu cầu HRM ra thông báo bắt buộc có mặt 5 ngày/tuần.'</p><div class='bg-rose-900/30 p-3 rounded border border-rose-500/50'><strong class='text-rose-400'>Chẩn đoán (Slide 8):</strong> Thiên kiến Gần gũi (Proximity Bias) - Đánh giá dựa trên sự hiện diện.</div>"
+                    },
+                    {
+                        id: "e2",
+                        icon: "fa-comments",
+                        title: "Chat Log Gen Z",
+                        preview: "Leaked: 'Sếp bắt bật cam suốt ngày...'",
+                        content: "<h3 class='text-xl font-bold text-white mb-2'>Chat Log:</h3><p class='text-slate-300 mb-4'>'Làm remote mà cứ bắt bật cam 24/7 để điểm danh. Sếp không tin tưởng mình chút nào. Chắc tớ out sớm.'</p><div class='bg-rose-900/30 p-3 rounded border border-rose-500/50'><strong class='text-rose-400'>Chẩn đoán (Slide 14):</strong> Sự kiểm soát quá mức (Micromanagement) phá hủy niềm tin.</div>"
+                    },
+                    {
+                        id: "e3",
+                        icon: "fa-chart-pie",
+                        title: "Dữ liệu Thăng tiến",
+                        preview: "So sánh nhóm Office vs Remote...",
+                        content: "<h3 class='text-xl font-bold text-white mb-2'>Dữ liệu HR:</h3><p class='text-slate-300 mb-4'>- Nhóm tại VP: 80% được thăng chức.<br>- Nhóm Remote: Hiệu suất cao hơn 15% nhưng 0% được thăng chức.</p><div class='bg-rose-900/30 p-3 rounded border border-rose-500/50'><strong class='text-rose-400'>Chẩn đoán (Slide 7):</strong> Bất bình đẳng quyền lực. Nhóm Remote là 'Tầng lớp yếu thế'.</div>"
+                    }
+                ],
+                actionTitle: "Quyết định của HRM:",
+                options: [
+                    {
+                        id: "opt1_bad",
+                        text: "Làm theo ý CEO: Ra thông báo bắt buộc đi làm để chấn chỉnh kỷ cương.",
+                        feedback: "SAI LẦM! Bạn đã hợp pháp hóa 'Thiên kiến gần gũi'. Gen Z sẽ nghỉ việc hàng loạt.",
+                        impact: { trust: -20, retention: -20 },
+                        next: "fail"
+                    },
+                    {
+                        id: "opt1_good",
+                        text: "Tổ chức họp toàn công ty: Công bố dữ liệu bất bình đẳng và thừa nhận vấn đề về niềm tin.",
+                        feedback: "CHÍNH XÁC! Thừa nhận vấn đề là bước đầu của 'An toàn tâm lý'. Bạn đã dũng cảm đối mặt với 'Tảng băng chìm'.",
+                        impact: { trust: +10, retention: +5 },
+                        next: 2
+                    }
+                ],
+                advisor: "HRM ơi, hãy dùng Slide 8 & 12 để gọi tên chính xác 'bệnh' của công ty: Thiên kiến gần gũi & Xung đột ngầm."
+            },
+            2: {
+                title: "GĐ 2: Luật Chơi Mới - Giao Tiếp",
+                desc: "Sau khi chẩn đoán, bạn nhận thấy khoảng cách thế hệ gây ra nhiều hiểu lầm qua chat/email. Cần thiết lập lại luật chơi.",
+                actionTitle: "HRM sẽ ban hành chính sách nào? (Slide 18)",
+                options: [
+                    {
+                        id: "opt2_bad",
+                        text: "Yêu cầu nhân viên viết email trang trọng, cấm dùng icon để đảm bảo sự chuyên nghiệp.",
+                        feedback: "RẤT TIẾC. Bạn đang ép 'Người bản địa số' quay về thời kỳ Analog. Hiệu suất sẽ giảm.",
+                        impact: { trust: -5, retention: 0 },
+                        next: 3
+                    },
+                    {
+                        id: "opt2_good",
+                        text: "Ban hành chính sách 'Viết là cách nói mới' & Quy tắc kênh giao tiếp (Async vs Sync).",
+                        feedback: "TUYỆT VỜI! Phân rõ Đồng bộ vs Bất đồng bộ giúp giảm stress cho cả 2 thế hệ.",
+                        impact: { trust: +15, retention: +10 },
+                        next: 3
+                    }
+                ],
+                advisor: "Nhớ lại Slide 11: Intent (Ý định) vs Impact (Tác động). Đừng để Chat icon phá hỏng việc lớn."
+            },
+            3: {
+                title: "GĐ 2: Luật Chơi Mới - RTO",
+                desc: "Vấn đề 'Quay lại văn phòng' vẫn nóng. CEO muốn thấy mặt nhân viên, nhân viên muốn tự do.",
+                actionTitle: "Điều khoản nào nên có trong Hợp đồng xã hội? (Slide 14)",
+                options: [
+                    {
+                        id: "opt3_bad",
+                        text: "Quy định: 'Thứ 2, 4, 6 bắt buộc có mặt chấm công'.",
+                        feedback: "CỨNG NHẮC. Nhân viên sẽ lên văn phòng chỉ để 'điểm danh' rồi ngồi đeo tai nghe.",
+                        impact: { trust: -10, retention: -5 },
+                        next: 4
+                    },
+                    {
+                        id: "opt3_good",
+                        text: "Quy định: 'Ngày Cộng Tác'. Chỉ lên VP khi có hoạt động nhóm. Những ngày làm sâu (Deep work) được ở nhà.",
+                        feedback: "XUẤT SẮC! Đây là tư duy 'Purposeful Gathering'. Bạn giải quyết được nỗi lo của CEO mà vẫn tôn trọng nhân viên.",
+                        impact: { trust: +20, retention: +15 },
+                        next: 4
+                    }
+                ],
+                advisor: "Slide 14: RTO bắt buộc thường bị coi là thiếu tin tưởng. Hãy biến nó thành hoạt động có mục đích."
+            },
+            4: {
+                title: "GĐ 2: Quyền Ngắt Kết Nối",
+                desc: "Một quản lý thường gửi email lúc 10h tối. Nhân viên cảm thấy áp lực phải trả lời ngay, gây kiệt sức (Burnout).",
+                actionTitle: "HRM xử lý sao? (Slide 22)",
+                options: [
+                    {
+                        id: "opt4_bad",
+                        text: "Nhắc nhở nhẹ: 'Sếp gửi kệ sếp, mai trả lời cũng được'.",
+                        feedback: "CHƯA ĐỦ. Áp lực quyền lực ngầm vẫn còn đó.",
+                        impact: { trust: 0, retention: -5 },
+                        next: 5
+                    },
+                    {
+                        id: "opt4_good",
+                        text: "Quy định 'Schedule Send' (Gửi chậm): Email soạn ban đêm sẽ tự động gửi vào 8h sáng hôm sau.",
+                        feedback: "QUÁ CHUẨN! Bạn dùng công nghệ để bảo vệ ranh giới công việc - cuộc sống.",
+                        impact: { trust: +15, retention: +5 },
+                        next: 5
+                    }
+                ],
+                advisor: "Slide 22: Cần chiến lược giữ chân nhân tài bằng sự cân bằng (Well-being)."
+            },
+            5: {
+                title: "GĐ 3: Xung Đột Thứ Bậc",
+                desc: "Một nhân viên Gen Z nảy ra ý tưởng mới và nhắn tin thẳng cho CEO (DM). Quản lý trực tiếp (Gen X) giận dữ vì bị 'qua mặt'.",
+                actionTitle: "Giải pháp của HRM? (Slide 19)",
+                options: [
+                    {
+                        id: "opt5_bad",
+                        text: "Kỷ luật Gen Z vì vi phạm tôn ti trật tự.",
+                        feedback: "CŨ KỸ. Bạn đang bảo vệ cấu trúc cũ nhưng giết chết sự sáng tạo.",
+                        impact: { trust: -5, retention: -10 },
+                        next: 6
+                    },
+                    {
+                        id: "opt5_good",
+                        text: "Làm cầu nối: Giải thích cho Gen Z về vai trò của Quản lý, và khuyên Quản lý cởi mở hơn với văn hóa phẳng.",
+                        feedback: "KHÉO LÉO! Bạn dung hòa được nhu cầu 'Phẳng' của Gen Z và nhu cầu 'Cấu trúc' của Gen X.",
+                        impact: { trust: +10, retention: +5 },
+                        next: 6
+                    }
+                ],
+                advisor: "Slide 19: Điểm ma sát #2 - Quan điểm về thứ bậc (Cấu trúc vs Phẳng)."
+            },
+            6: {
+                title: "GĐ 3: Khoảng Cách Công Nghệ",
+                desc: "Nhóm Marketing (Gen Z) muốn dùng Notion. Trưởng phòng (Boomer) bắt in báo cáo giấy vì 'dễ đọc'. Quy trình bị tắc nghẽn.",
+                actionTitle: "HRM làm gì? (Slide 20)",
+                options: [
+                    {
+                        id: "opt6_bad",
+                        text: "Yêu cầu Gen Z làm cả hai: Nhập liệu và In giấy.",
+                        feedback: "LÃNG PHÍ. Bạn làm tăng khối lượng việc và gây ức chế.",
+                        impact: { trust: -10, retention: -5 },
+                        next: 7
+                    },
+                    {
+                        id: "opt6_good",
+                        text: "Chương trình 'Reverse Mentoring': Gen Z dạy sếp dùng Notion, Sếp dạy Gen Z tư duy chiến lược.",
+                        feedback: "ĐỘT PHÁ! Biến xung đột thành cơ hội học tập chéo (Slide 20).",
+                        impact: { trust: +20, retention: +10 },
+                        next: 7
+                    }
+                ],
+                advisor: "Slide 20: Khoảng cách kỹ thuật số gây ma sát. Hãy dùng Reverse Mentoring."
+            },
+            7: {
+                title: "GĐ 4: Khủng Hoảng Phản Hồi",
+                desc: "Nhân viên Gen Z nộp đơn nghỉ việc vì 'không thấy phát triển', dù công ty có Review lương 1 năm/lần.",
+                actionTitle: "HRM thay đổi gì? (Slide 21)",
+                options: [
+                    {
+                        id: "opt7_bad",
+                        text: "Khuyên nhân viên kiên nhẫn đợi đến cuối năm.",
+                        feedback: "KHÔNG HIỆU QUẢ. Gen Z cần 'thỏa mãn tức thì'. Chờ 1 năm là quá dài.",
+                        impact: { trust: -5, retention: -15 },
+                        next: 8
+                    },
+                    {
+                        id: "opt7_good",
+                        text: "Thiết lập Micro-feedback: Check-in 15 phút hàng tuần.",
+                        feedback: "CHÍNH XÁC! Bạn hiểu đúng nhu cầu phát triển liên tục của Gen Z.",
+                        impact: { trust: +15, retention: +20 },
+                        next: 8
+                    }
+                ],
+                advisor: "Slide 21: 62% phản hồi thất bại do khác biệt thế hệ. Hãy chuyển sang Micro-feedback."
+            },
+            8: {
+                title: "GĐ 4: Tổng Kết & Đo Lường",
+                desc: "Bạn đã đi qua một hành trình dài. Giờ là lúc nhìn lại các chỉ số.",
+                actionTitle: "Bạn chọn chỉ số nào để báo cáo CEO? (Slide 11 Buổi 2)",
+                options: [
+                    {
+                        id: "opt8_bad",
+                        text: "Số giờ làm việc tại văn phòng của nhân viên.",
+                        feedback: "SAI LẦM. Đây là chỉ số của sự kiểm soát (Presence), không phải hiệu quả.",
+                        impact: { trust: -5, retention: 0 },
+                        next: "finish"
+                    },
+                    {
+                        id: "opt8_good",
+                        text: "Chỉ số eNPS (Độ hài lòng) và Tỷ lệ giữ chân nhân tài.",
+                        feedback: "TUYỆT VỜI! Đây là những thước đo thực sự của một nền văn hóa khỏe mạnh.",
+                        impact: { trust: +10, retention: +5 },
+                        next: "finish"
+                    }
+                ],
+                advisor: "Slide 11 (Buổi 2): Đo lường bằng eNPS, Retention và Innovation."
+            }
+        };
+
+        // --- FUNCTIONS ---
+
+        function init() {
+            renderPhase(1);
+        }
+
+        function switchTab(tabId) {
+            document.getElementById('view-simulation').classList.add('hidden-content');
+            document.getElementById('view-theory').classList.add('hidden-content');
+            
+            if(tabId === 'simulation') {
+                document.getElementById('view-simulation').classList.remove('hidden-content');
+                document.getElementById('roadmap-container').classList.remove('hidden-content');
+            } else {
+                document.getElementById('view-theory').classList.remove('hidden-content');
+                document.getElementById('roadmap-container').classList.add('hidden-content');
+            }
+
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active', 'bg-slate-700', 'text-white'));
+            const activeBtn = document.getElementById('tab-btn-' + tabId);
+            activeBtn.classList.add('active');
+        }
+
+        function renderPhase(phaseId) {
+            state.phase = phaseId;
+            const data = phases[phaseId];
+            const container = document.getElementById('game-content');
+            
+            // Update Sidebar Roadmap
+            document.querySelectorAll('.phase-step').forEach((el, idx) => {
+                if (idx + 1 < Math.ceil(phaseId/2)) el.className = 'phase-step completed border-l-4 border-slate-600 pl-4 py-2 mb-4';
+            });
+
+            // Update Advisor
+            document.getElementById('advisor-text').innerText = data.advisor;
+
+            // Render Content
+            let evidencesHtml = '';
+            if (data.evidences && data.evidences.length > 0) {
+                evidencesHtml = `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        ${data.evidences.map(ev => `
+                            <div onclick="openEvidence('${ev.id}')" class="evidence-card bg-slate-800 border border-slate-700 p-4 rounded-xl flex flex-col items-center text-center gap-3">
+                                <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center text-amber-400 text-xl">
+                                    <i class="fa-solid ${ev.icon}"></i>
+                                </div>
+                                <div>
+                                    <h5 class="font-bold text-white text-sm">${ev.title}</h5>
+                                    <p class="text-xs text-slate-400 mt-1 line-clamp-2">${ev.preview}</p>
+                                </div>
+                                <span class="text-xs text-indigo-400 font-bold uppercase mt-auto">Xem chi tiết <i class="fa-solid fa-arrow-right"></i></span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="mb-8">
+                    <h2 class="text-3xl brand-font text-white mb-4">${data.title}</h2>
+                    <p class="text-lg text-slate-300 leading-relaxed border-l-4 border-amber-500 pl-4 bg-slate-800/50 p-4 rounded-r-lg">
+                        ${data.desc}
+                    </p>
+                </div>
+
+                ${evidencesHtml}
+
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl">
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-gavel text-teal-400"></i> ${data.actionTitle}
+                    </h3>
+                    <div class="space-y-4">
+                        ${data.options.map(opt => `
+                            <button onclick="makeDecision('${opt.id}')" class="w-full text-left bg-slate-700 hover:bg-slate-600 p-5 rounded-xl border border-slate-600 hover:border-amber-500 transition group flex gap-4">
+                                <div class="w-6 h-6 rounded-full border-2 border-slate-400 group-hover:border-amber-400 flex-shrink-0 mt-1"></div>
+                                <span class="text-lg text-slate-200 group-hover:text-white">${opt.text}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function openEvidence(id) {
+            const data = phases[state.phase].evidences.find(e => e.id === id);
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modal-content');
+            
+            content.innerHTML = data.content;
+            modal.classList.remove('hidden-content');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden-content');
+        }
+
+        function makeDecision(optId) {
+            const currentPhaseData = phases[state.phase];
+            const option = currentPhaseData.options.find(o => o.id === optId);
+            
+            // Update Stats
+            state.trust += option.impact.trust;
+            state.retention += option.impact.retention;
+            
+            // Clamp
+            state.trust = Math.min(100, Math.max(0, state.trust));
+            state.retention = Math.min(100, Math.max(0, state.retention));
+            
+            updateMetrics();
+
+            // Show Result
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modal-content');
+            
+            const isGood = option.id.includes('good');
+            const color = isGood ? 'text-green-400' : 'text-red-400';
+            const icon = isGood ? 'fa-check-circle' : 'fa-triangle-exclamation';
+
+            content.innerHTML = `
+                <div class="text-center">
+                    <i class="fa-solid ${icon} text-6xl ${color} mb-4"></i>
+                    <h3 class="text-2xl font-bold text-white mb-2">${isGood ? 'Quyết định Chính xác!' : 'Cảnh báo Rủi ro!'}</h3>
+                    <p class="text-slate-300 text-lg mb-6">${option.feedback}</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 max-w-xs mx-auto mb-8 text-sm">
+                        <div class="bg-slate-900 p-2 rounded text-slate-400">Niềm tin: <span class="${option.impact.trust >= 0 ? 'text-green-400' : 'text-red-400'}">${option.impact.trust > 0 ? '+' : ''}${option.impact.trust}%</span></div>
+                        <div class="bg-slate-900 p-2 rounded text-slate-400">Giữ chân: <span class="${option.impact.retention >= 0 ? 'text-green-400' : 'text-red-400'}">${option.impact.retention > 0 ? '+' : ''}${option.impact.retention}%</span></div>
+                    </div>
+
+                    <button onclick="advancePhase('${option.next}')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-lg">
+                        ${option.next === 'finish' || option.next === 'fail' ? 'Xem Kết Quả' : 'Sang Tình Huống Tiếp Theo'} <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            `;
+            modal.classList.remove('hidden-content');
+        }
+
+        function advancePhase(next) {
+            closeModal();
+            if (next === 'fail') {
+                showEndScreen(false);
+            } else if (next === 'finish') {
+                showEndScreen(true);
+            } else {
+                renderPhase(next);
+            }
+        }
+
+        function updateMetrics() {
+            document.getElementById('bar-trust').style.width = state.trust + '%';
+            document.getElementById('val-trust').innerText = state.trust + '%';
+            
+            document.getElementById('bar-retention').style.width = state.retention + '%';
+            document.getElementById('val-retention').innerText = state.retention + '%';
+        }
+
+        function showEndScreen(success) {
+            const container = document.getElementById('game-content');
+            
+            if (success) {
+                let rank = "HRM Tiềm Năng";
+                if (state.trust > 80) rank = "Chiến Lược Gia Đại Tài";
+                else if (state.trust > 60) rank = "Nhà Quản Lý Có Tâm";
+
+                container.innerHTML = `
+                    <div class="text-center py-10 animate-fade-in">
+                        <i class="fa-solid fa-trophy text-6xl text-yellow-400 mb-6"></i>
+                        <h2 class="text-4xl brand-font text-white mb-2">Chúc Mừng HRM!</h2>
+                        <p class="text-xl text-slate-400 mb-8">Danh hiệu: <span class="text-amber-400 font-bold">${rank}</span></p>
+                        
+                        <div class="bg-slate-800 p-8 rounded-2xl max-w-2xl mx-auto text-left border border-slate-700">
+                            <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">Tổng kết chiến lược:</h3>
+                            <ul class="space-y-3 text-slate-300">
+                                <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Đã nhận diện đúng "Thiên kiến gần gũi".</li>
+                                <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Đã thiết lập "Hợp đồng xã hội" và RTO linh hoạt.</li>
+                                <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Đã dùng "Reverse Mentoring" để hàn gắn thế hệ.</li>
+                            </ul>
+                        </div>
+
+                        <button onclick="location.reload()" class="mt-8 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-lg">
+                            <i class="fa-solid fa-rotate-right mr-2"></i> Chơi Lại
+                        </button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-10 animate-fade-in">
+                        <i class="fa-solid fa-skull-crossbones text-6xl text-red-500 mb-6"></i>
+                        <h2 class="text-4xl brand-font text-white mb-2">Game Over</h2>
+                        <p class="text-xl text-slate-400 mb-8">Văn hóa công ty sụp đổ. HRM hãy thử lại nhé!</p>
+                        <button onclick="location.reload()" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-8 rounded-lg">
+                            <i class="fa-solid fa-rotate-right mr-2"></i> Thử Lại
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        init();
+
+    </script>
+</body>
+</html>
